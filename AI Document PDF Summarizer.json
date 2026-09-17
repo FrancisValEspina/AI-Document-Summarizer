@@ -1,0 +1,229 @@
+{
+  "name": "AI Document Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "AI Document Summarizer",
+        "formDescription": "=You will be summarizing a PDF file.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Kindly upload your PDF file here.",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "99709693-27f4-4abc-b0d3-37313824f099",
+      "name": "On form submission",
+      "webhookId": "93f37834-b747-4afa-a65a-7b5de4db2007"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Kindly_upload_your_PDF_file_here_",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "dff1e17f-4eb5-4831-a35c-83f351b24349",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You will be summarizing a PDF file that you have received:{{ $json.text }}\n\nUse the Wikipedia tool for additional information."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8352db54-f391-4255-b200-867a36ea8b65",
+      "name": "Summarize PDF file",
+      "credentials": {
+        "openAiApi": {
+          "id": "hqz2cqCb6OGGtJF7",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        544,
+        208
+      ],
+      "id": "38598d70-d812-4813-b0e9-f63baf24cb78",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RbBvQQfjVqlUnaqgO9Hkrxmf4FombTi_757409eNdts",
+          "mode": "list",
+          "cachedResultName": "Template of AI for summarizing documents",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RbBvQQfjVqlUnaqgO9Hkrxmf4FombTi_757409eNdts/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RbBvQQfjVqlUnaqgO9Hkrxmf4FombTi_757409eNdts/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Summary": "={{ $json.output[0].content[0].text }}",
+            "Title": "={{ $('On form submission').item.json['Kindly upload your PDF file here.'][0].filename }}",
+            "Date Added": "={{ $('On form submission').item.json.submittedAt.toDateTime().format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [
+            "Summary"
+          ],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        0
+      ],
+      "id": "d7661961-e46f-4a45-a5f1-b9fdf661c080",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CDYeyhlrhLJSHv1o",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Summarize PDF file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "Summarize PDF file",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize PDF file": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "106754ca-f256-4bac-b53b-224588ba5d70",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8b10c206497601600df02fa9cd85368b8f9222c2e2f5ca2caf38c80707b93c2b"
+  },
+  "nodeGroups": [],
+  "id": "b1nLOGIFKOWw2po9",
+  "tags": []
+}
